@@ -35,8 +35,6 @@ const donationSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Donation', donationSchema);
-
 // Update campaign amount after donation
 donationSchema.post('save', async function () {
   const Campaign = mongoose.model('Campaign');
