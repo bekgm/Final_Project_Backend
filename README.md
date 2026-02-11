@@ -1,6 +1,8 @@
 # Charity/Donation Platform
 
-A full-stack web application for managing charity campaigns and donations, built with Node.js, Express, MongoDB, and vanilla JavaScript.
+> **Team Apex** — A full-stack web application for managing charity campaigns and donations, built with Node.js, Express, MongoDB, and vanilla JavaScript.
+>
+> **Live:** [https://apex.maqsatto.tech](https://apex.maqsatto.tech)
 
 ## 📋 Table of Contents
 
@@ -13,6 +15,7 @@ A full-stack web application for managing charity campaigns and donations, built
 - [Screenshots](#screenshots)
 - [Advanced Features](#advanced-features)
 - [Deployment](#deployment)
+- [Team](#team)
 
 ## ✨ Features
 
@@ -693,26 +696,29 @@ To test the application:
 
 This project is licensed under the MIT License.
 
-## 👥 Contributors
+## 👥 Team
 
-Your Team Members:
-- Team Member 1 - [Role/Contribution]
-- Team Member 2 - [Role/Contribution]
-- Team Member 3 - [Role/Contribution]
+**Team Apex**
+
+| Member | Role |
+|--------|------|
+| **Maqsat** | Team Lead, DevOps & Backend |
+| **Bekzat** | Backend Developer |
+| **Nazarbek** | Frontend Developer |
+| **Raibek** | Frontend Developer |
+
+## 📞 Contact
+
+- **Email:** admin@maqsatto.tech
+- **Website:** [https://apex.maqsatto.tech](https://apex.maqsatto.tech)
+- **GitHub Issues:** Open an issue on this repository
 
 ## 🙏 Acknowledgments
 
 - Node.js and Express.js communities
 - MongoDB documentation
 - MDN Web Docs
-- Stack Overflow community
-
-## 📞 Support
-
-For issues and questions:
-- Open an issue on GitHub
-- Contact: your-email@example.com
 
 ---
 
-**Last Updated:** February 2024
+**Last Updated:** February 2026

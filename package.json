@@ -13,7 +13,7 @@
     "express",
     "mongodb"
   ],
-  "author": "Your Team",
+  "author": "Team Apex",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
