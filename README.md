@@ -20,6 +20,7 @@
 ## ✨ Features
 
 ### For All Users
+
 - Browse active charity campaigns
 - Filter campaigns by category and status
 - View campaign details and donation history
@@ -27,12 +28,14 @@
 - Secure password hashing with bcrypt
 
 ### For Authenticated Users
+
 - Make donations to campaigns
 - View personal donation history
 - Update profile information
 - Anonymous donation option
 
 ### For Admins/Moderators
+
 - Create new charity campaigns
 - Edit existing campaigns
 - Delete campaigns (Admin only)
@@ -40,6 +43,7 @@
 - Role-based access control (RBAC)
 
 ### Additional Features
+
 - Email notifications using Nodemailer with SendGrid/Mailgun
 - Input validation with Joi
 - Comprehensive error handling
@@ -48,6 +52,7 @@
 ## 🛠 Tech Stack
 
 **Backend:**
+
 - Node.js
 - Express.js
 - MongoDB with Mongoose
@@ -57,6 +62,7 @@
 - Joi for validation
 
 **Frontend:**
+
 - HTML5
 - CSS3 (Custom styling)
 - Vanilla JavaScript
@@ -133,22 +139,26 @@ charity-donation-app/
 ### Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone <repository-url>
 cd charity-donation-app
 ```
 
 2. **Install dependencies**
+
 ```bash
 npm install
 ```
 
 3. **Setup environment variables**
+
 ```bash
 cp .env.example .env
 ```
 
 Edit `.env` file with your configuration:
+
 ```env
 PORT=5000
 NODE_ENV=development
@@ -165,11 +175,13 @@ FRONTEND_URL=http://localhost:5000
 ```
 
 4. **Start MongoDB** (if running locally)
+
 ```bash
 mongod
 ```
 
 5. **Run the application**
+
 ```bash
 # Development mode with auto-restart
 npm run dev
@@ -179,13 +191,14 @@ npm start
 ```
 
 6. **Access the application**
-Open your browser and navigate to: `http://localhost:5000`
+   Open your browser and navigate to: `http://localhost:5000`
 
 ### Creating Admin User
 
 To create an admin user, you can either:
 
 **Option 1: Via MongoDB directly**
+
 ```javascript
 // Connect to MongoDB and update a user
 use charity-donation
@@ -196,29 +209,31 @@ db.users.updateOne(
 ```
 
 **Option 2: Register normally then update in database**
+
 1. Register a new account via `/register.html`
 2. Update the user's role in MongoDB to "admin" or "moderator"
 
 ## 🔐 Environment Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `PORT` | Server port | `5000` |
-| `NODE_ENV` | Environment | `development` or `production` |
-| `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/charity-donation` |
-| `JWT_SECRET` | Secret key for JWT | `your-secret-key` |
-| `JWT_EXPIRE` | JWT expiration time | `7d` |
-| `EMAIL_SERVICE` | Email service provider | `SendGrid` |
-| `EMAIL_HOST` | SMTP host | `smtp.sendgrid.net` |
-| `EMAIL_PORT` | SMTP port | `587` |
-| `EMAIL_USER` | SMTP username | `apikey` |
-| `EMAIL_PASSWORD` | SMTP password/API key | `your-api-key` |
-| `EMAIL_FROM` | Sender email address | `noreply@charityapp.com` |
-| `FRONTEND_URL` | Frontend URL for CORS | `http://localhost:5000` |
+| Variable         | Description               | Example                                      |
+| ---------------- | ------------------------- | -------------------------------------------- |
+| `PORT`           | Server port               | `5000`                                       |
+| `NODE_ENV`       | Environment               | `development` or `production`                |
+| `MONGODB_URI`    | MongoDB connection string | `mongodb://localhost:27017/charity-donation` |
+| `JWT_SECRET`     | Secret key for JWT        | `your-secret-key`                            |
+| `JWT_EXPIRE`     | JWT expiration time       | `7d`                                         |
+| `EMAIL_SERVICE`  | Email service provider    | `SendGrid`                                   |
+| `EMAIL_HOST`     | SMTP host                 | `smtp.sendgrid.net`                          |
+| `EMAIL_PORT`     | SMTP port                 | `587`                                        |
+| `EMAIL_USER`     | SMTP username             | `apikey`                                     |
+| `EMAIL_PASSWORD` | SMTP password/API key     | `your-api-key`                               |
+| `EMAIL_FROM`     | Sender email address      | `noreply@charityapp.com`                     |
+| `FRONTEND_URL`   | Frontend URL for CORS     | `http://localhost:5000`                      |
 
 ## 📚 API Documentation
 
 ### Base URL
+
 ```
 http://localhost:5000/api
 ```
@@ -226,6 +241,7 @@ http://localhost:5000/api
 ### Authentication Endpoints (Public)
 
 #### Register User
+
 ```http
 POST /api/auth/register
 Content-Type: application/json
@@ -238,6 +254,7 @@ Content-Type: application/json
 ```
 
 **Response (201 Created):**
+
 ```json
 {
   "success": true,
@@ -253,6 +270,7 @@ Content-Type: application/json
 ```
 
 #### Login
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -264,6 +282,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -281,16 +300,19 @@ Content-Type: application/json
 ### User Endpoints (Private)
 
 **All user endpoints require JWT token in Authorization header:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 #### Get User Profile
+
 ```http
 GET /api/users/profile
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -305,6 +327,7 @@ GET /api/users/profile
 ```
 
 #### Update User Profile
+
 ```http
 PUT /api/users/profile
 Content-Type: application/json
@@ -316,6 +339,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -332,15 +356,18 @@ Content-Type: application/json
 ### Campaign Endpoints
 
 #### Get All Campaigns (Public)
+
 ```http
 GET /api/campaigns?status=active&category=Education
 ```
 
 **Query Parameters:**
+
 - `status` (optional): Filter by status (active, completed, closed)
 - `category` (optional): Filter by category
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -368,11 +395,13 @@ GET /api/campaigns?status=active&category=Education
 ```
 
 #### Get Single Campaign (Public)
+
 ```http
 GET /api/campaigns/:id
 ```
 
 #### Create Campaign (Private - Admin/Moderator)
+
 ```http
 POST /api/campaigns
 Authorization: Bearer <token>
@@ -389,6 +418,7 @@ Content-Type: application/json
 ```
 
 **Response (201 Created):**
+
 ```json
 {
   "success": true,
@@ -410,6 +440,7 @@ Content-Type: application/json
 ```
 
 #### Update Campaign (Private - Admin/Moderator)
+
 ```http
 PUT /api/campaigns/:id
 Authorization: Bearer <token>
@@ -422,6 +453,7 @@ Content-Type: application/json
 ```
 
 #### Delete Campaign (Private - Admin Only)
+
 ```http
 DELETE /api/campaigns/:id
 Authorization: Bearer <token>
@@ -430,12 +462,14 @@ Authorization: Bearer <token>
 ### Donation Endpoints
 
 #### Get User Donations (Private)
+
 ```http
 GET /api/donations
 Authorization: Bearer <token>
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -460,11 +494,13 @@ Authorization: Bearer <token>
 ```
 
 #### Get Campaign Donations (Public)
+
 ```http
 GET /api/donations/campaign/:campaignId
 ```
 
 #### Create Donation (Private)
+
 ```http
 POST /api/donations
 Authorization: Bearer <token>
@@ -479,6 +515,7 @@ Content-Type: application/json
 ```
 
 **Response (201 Created):**
+
 ```json
 {
   "success": true,
@@ -504,12 +541,14 @@ Content-Type: application/json
 ```
 
 #### Get Single Donation (Private)
+
 ```http
 GET /api/donations/:id
 Authorization: Bearer <token>
 ```
 
 #### Delete Donation (Private - Admin Only)
+
 ```http
 DELETE /api/donations/:id
 Authorization: Bearer <token>
@@ -528,6 +567,7 @@ All endpoints return appropriate HTTP status codes:
 - `500` - Internal Server Error
 
 **Error Response Format:**
+
 ```json
 {
   "success": false,
@@ -539,26 +579,32 @@ All endpoints return appropriate HTTP status codes:
 ## 📸 Screenshots
 
 ### 1. Home Page - Campaign Listing
+
 ![Campaign Listing](screenshots/campaigns.png)
 **Description:** Browse all active charity campaigns with filtering options by category and status. Each card shows campaign progress, goal amount, and days remaining.
 
 ### 2. Login Page
+
 ![Login Page](screenshots/login.png)
 **Description:** Secure login page with email and password authentication. JWT tokens are used for session management.
 
 ### 3. Registration Page
+
 ![Registration Page](screenshots/register.png)
 **Description:** New user registration with validation for username, email, and password. Passwords are hashed using bcrypt before storage.
 
 ### 4. User Dashboard
+
 ![User Dashboard](screenshots/dashboard.png)
 **Description:** Personal dashboard showing user profile, donation statistics, and complete donation history with details.
 
 ### 5. Admin Panel
+
 ![Admin Panel](screenshots/admin.png)
 **Description:** Admin interface for managing campaigns. Admins and moderators can create, edit, and delete campaigns. Role-based access control ensures only authorized users can access this panel.
 
 ### 6. Campaign Creation Modal
+
 ![Create Campaign](screenshots/create-campaign.png)
 **Description:** Modal form for creating new campaigns with validation for all required fields including title, description, goal amount, category, and end date.
 
@@ -573,6 +619,7 @@ The application implements three user roles with different permission levels:
 - **Admin**: All moderator permissions + delete campaigns and donations
 
 **Implementation:**
+
 ```javascript
 // Middleware in roleMiddleware.js
 exports.authorize = (...roles) => {
@@ -580,7 +627,7 @@ exports.authorize = (...roles) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: `User role '${req.user.role}' is not authorized`
+        message: `User role '${req.user.role}' is not authorized`,
       });
     }
     next();
@@ -588,8 +635,8 @@ exports.authorize = (...roles) => {
 };
 
 // Usage in routes
-router.post('/', protect, authorize('admin', 'moderator'), createCampaign);
-router.delete('/:id', protect, authorize('admin'), deleteCampaign);
+router.post("/", protect, authorize("admin", "moderator"), createCampaign);
+router.delete("/:id", protect, authorize("admin"), deleteCampaign);
 ```
 
 ### 2. SMTP Email Service Integration
@@ -597,24 +644,27 @@ router.delete('/:id', protect, authorize('admin'), deleteCampaign);
 Email notifications are sent using Nodemailer with SendGrid/Mailgun:
 
 **Features:**
+
 - Welcome email on user registration
 - Thank you email after donation
 - Environment-based configuration
 - Error handling for failed emails
 
 **Configuration (config/mail.js):**
+
 ```javascript
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-  }
+    pass: process.env.EMAIL_PASSWORD,
+  },
 });
 ```
 
 **Email Types:**
+
 - **Welcome Email**: Sent when users register
 - **Donation Confirmation**: Sent after successful donation
 
@@ -639,11 +689,13 @@ const transporter = nodemailer.createTransport({
 
 1. **Install Railway CLI** or use the dashboard
 2. **Initialize project:**
+
 ```bash
 railway init
 ```
 
 3. **Add environment variables:**
+
 ```bash
 railway variables set MONGODB_URI=<your-atlas-uri>
 railway variables set JWT_SECRET=<your-secret>
@@ -651,6 +703,7 @@ railway variables set JWT_SECRET=<your-secret>
 ```
 
 4. **Deploy:**
+
 ```bash
 railway up
 ```
@@ -700,12 +753,12 @@ This project is licensed under the MIT License.
 
 **Team Apex**
 
-| Member | Role |
-|--------|------|
-| **Maqsat** | Team Lead, DevOps & Backend |
-| **Bekzat** | Backend Developer |
-| **Nazarbek** | Frontend Developer |
-| **Raibek** | Frontend Developer |
+| Member       | Role                        |
+| ------------ | --------------------------- |
+| **Maqsat**   | Team Lead, DevOps & Backend |
+| **Bekzat**   | Backend Developer           |
+| **Nazarbek** | Frontend Developer          |
+| **Raibek**   | Frontend Developer          |
 
 ## 📞 Contact
 
