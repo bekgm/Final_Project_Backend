@@ -1,0 +1,858 @@
+openapi: 3.0.3
+info:
+  title: Charity Donation Platform API
+  description: |
+    REST API for a charity and donation platform.
+    Manage campaigns, donations, users and authentication.
+  version: 1.0.0
+  contact:
+    name: Maqsat
+    url: https://apex.maqsatto.tech
+
+servers:
+  - url: https://apex.maqsatto.tech/api
+    description: Production
+
+tags:
+  - name: Auth
+    description: Registration and login
+  - name: Campaigns
+    description: Campaign management
+  - name: Donations
+    description: Donation management
+  - name: Users
+    description: User profile
+  - name: Health
+    description: Health check
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ─── Request Bodies ───
+    RegisterRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          example: maqsat
+        email:
+          type: string
+          format: email
+          example: sbmaxx2007@gmail.com
+        password:
+          type: string
+          minLength: 6
+          example: secret123
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: sbmaxx2007@gmail.com
+        password:
+          type: string
+          example: secret123
+
+    CreateCampaignRequest:
+      type: object
+      required: [title, description, goalAmount, category, endDate]
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 200
+          example: Help Build a School
+        description:
+          type: string
+          minLength: 10
+          example: A campaign to raise funds for building a school in rural areas.
+        goalAmount:
+          type: number
+          minimum: 1
+          example: 50000
+        category:
+          $ref: '#/components/schemas/CampaignCategory'
+        endDate:
+          type: string
+          format: date-time
+          example: '2026-12-31T23:59:59.000Z'
+        imageUrl:
+          type: string
+          format: uri
+          example: https://example.com/school.jpg
+
+    UpdateCampaignRequest:
+      type: object
+      minProperties: 1
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 200
+        description:
+          type: string
+          minLength: 10
+        goalAmount:
+          type: number
+          minimum: 1
+        category:
+          $ref: '#/components/schemas/CampaignCategory'
+        status:
+          $ref: '#/components/schemas/CampaignStatus'
+        endDate:
+          type: string
+          format: date-time
+        imageUrl:
+          type: string
+          format: uri
+
+    CreateDonationRequest:
+      type: object
+      required: [amount, campaign]
+      properties:
+        amount:
+          type: number
+          minimum: 1
+          example: 100
+        campaign:
+          type: string
+          description: Campaign ObjectId
+          example: 507f1f77bcf86cd799439011
+        message:
+          type: string
+          maxLength: 500
+          example: Keep up the great work!
+        isAnonymous:
+          type: boolean
+          default: false
+
+    UpdateProfileRequest:
+      type: object
+      minProperties: 1
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+        email:
+          type: string
+          format: email
+
+    # ─── Response Objects ───
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        username:
+          type: string
+          example: maqsat
+        email:
+          type: string
+          format: email
+          example: sbmaxx2007@gmail.com
+        role:
+          type: string
+          enum: [user, admin, moderator]
+          example: user
+        createdAt:
+          type: string
+          format: date-time
+
+    Campaign:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        goalAmount:
+          type: number
+        currentAmount:
+          type: number
+        category:
+          $ref: '#/components/schemas/CampaignCategory'
+        status:
+          $ref: '#/components/schemas/CampaignStatus'
+        createdBy:
+          type: object
+          properties:
+            _id:
+              type: string
+            username:
+              type: string
+        endDate:
+          type: string
+          format: date-time
+        imageUrl:
+          type: string
+        percentageCompleted:
+          type: integer
+          minimum: 0
+          maximum: 100
+        createdAt:
+          type: string
+          format: date-time
+
+    Donation:
+      type: object
+      properties:
+        _id:
+          type: string
+        amount:
+          type: number
+        campaign:
+          type: object
+          properties:
+            _id:
+              type: string
+            title:
+              type: string
+        donor:
+          type: object
+          properties:
+            _id:
+              type: string
+            username:
+              type: string
+        message:
+          type: string
+        isAnonymous:
+          type: boolean
+        status:
+          type: string
+          enum: [pending, completed, failed]
+        createdAt:
+          type: string
+          format: date-time
+
+    # ─── Enums ───
+    CampaignCategory:
+      type: string
+      enum: [Education, Healthcare, Environment, Poverty, Disaster Relief, Other]
+      example: Education
+
+    CampaignStatus:
+      type: string
+      enum: [active, completed, closed]
+      example: active
+
+    # ─── Common Responses ───
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Validation error
+        errors:
+          type: array
+          items:
+            type: string
+
+paths:
+  # ══════════════════════════════
+  #  HEALTH
+  # ══════════════════════════════
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: API is running
+
+  # ══════════════════════════════
+  #  AUTH
+  # ══════════════════════════════
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: User registered successfully
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error or duplicate user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login user
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Login successful
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ══════════════════════════════
+  #  CAMPAIGNS
+  # ══════════════════════════════
+  /campaigns:
+    get:
+      tags: [Campaigns]
+      summary: Get all campaigns
+      operationId: getAllCampaigns
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/CampaignStatus'
+        - name: category
+          in: query
+          schema:
+            $ref: '#/components/schemas/CampaignCategory'
+      responses:
+        '200':
+          description: List of campaigns
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                  campaigns:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Campaign'
+
+    post:
+      tags: [Campaigns]
+      summary: Create a campaign
+      description: Requires **admin** or **moderator** role.
+      operationId: createCampaign
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCampaignRequest'
+      responses:
+        '201':
+          description: Campaign created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Campaign created successfully
+                  campaign:
+                    $ref: '#/components/schemas/Campaign'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not authorized (wrong role)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /campaigns/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Campaign ObjectId
+
+    get:
+      tags: [Campaigns]
+      summary: Get a single campaign
+      operationId: getCampaign
+      responses:
+        '200':
+          description: Campaign details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  campaign:
+                    $ref: '#/components/schemas/Campaign'
+        '404':
+          description: Campaign not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Campaigns]
+      summary: Update a campaign
+      description: Requires **admin** or **moderator** role. Moderators can only update their own campaigns.
+      operationId: updateCampaign
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCampaignRequest'
+      responses:
+        '200':
+          description: Campaign updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Campaign updated successfully
+                  campaign:
+                    $ref: '#/components/schemas/Campaign'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Campaign not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Campaigns]
+      summary: Delete a campaign
+      description: Requires **admin** role.
+      operationId: deleteCampaign
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Campaign deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Campaign deleted successfully
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Campaign not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ══════════════════════════════
+  #  DONATIONS
+  # ══════════════════════════════
+  /donations:
+    post:
+      tags: [Donations]
+      summary: Create a donation
+      description: Authenticated users only. Campaign must be active.
+      operationId: createDonation
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDonationRequest'
+      responses:
+        '201':
+          description: Donation created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Donation created successfully
+                  donation:
+                    $ref: '#/components/schemas/Donation'
+        '400':
+          description: Validation error or campaign not active
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Campaign not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags: [Donations]
+      summary: Get current user's donations
+      operationId: getUserDonations
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of user's donations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                  donations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Donation'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /donations/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Donation ObjectId
+
+    get:
+      tags: [Donations]
+      summary: Get a single donation
+      description: Owner or admin can view.
+      operationId: getDonation
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Donation details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  donation:
+                    $ref: '#/components/schemas/Donation'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Donation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Donations]
+      summary: Delete a donation
+      description: Requires **admin** role. If donation was completed, campaign amount is decremented.
+      operationId: deleteDonation
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Donation deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Donation deleted successfully
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Donation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /donations/campaign/{campaignId}:
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Campaign ObjectId
+
+    get:
+      tags: [Donations]
+      summary: Get donations for a campaign
+      description: Public. Anonymous donors shown as "Anonymous". Max 50 completed donations.
+      operationId: getCampaignDonations
+      responses:
+        '200':
+          description: Campaign donations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                  donations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Donation'
+
+  # ══════════════════════════════
+  #  USERS
+  # ══════════════════════════════
+  /users/profile:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      operationId: getProfile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Users]
+      summary: Update current user profile
+      operationId: updateProfile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Profile updated successfully
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
