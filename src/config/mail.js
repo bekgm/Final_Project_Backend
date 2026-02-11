@@ -1,28 +1,32 @@
-const nodemailer = require('nodemailer');
-
-// Create transporter using SMTP
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT, 10),
-  secure: process.env.EMAIL_PORT === '465',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
-
-// Send email function
+// Send email via Resend HTTP API
+// (DigitalOcean blocks SMTP ports, so we use the REST API)
 const sendEmail = async (options) => {
-  const mailOptions = {
+  const body = JSON.stringify({
     from: process.env.EMAIL_FROM,
-    to: options.email,
+    to: [options.email],
     subject: options.subject,
     html: options.message,
-  };
+  });
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully');
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.EMAIL_PASSWORD}`,
+        'Content-Type': 'application/json',
+      },
+      body,
+      signal: AbortSignal.timeout(10000),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Resend API error:', data);
+      throw new Error(data.message || 'Email could not be sent');
+    }
+
+    console.log('Email sent successfully, id:', data.id);
   } catch (error) {
     console.error('Email error:', error);
     throw new Error('Email could not be sent');
